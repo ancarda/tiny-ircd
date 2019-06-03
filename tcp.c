@@ -44,3 +44,8 @@ int tcp_server(char *listen_addr, int port, int listen_backlog)
 
     return sock;
 }
+
+int tcp_send(int sock, char *msg)
+{
+    return send(sock, msg, strlen(msg), 0);
+}

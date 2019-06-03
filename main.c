@@ -15,35 +15,27 @@ const int LISTEN_BACKLOG = 10;
 
 void *handle_client(void *args)
 {
-	int     sock;
-	int     status;
-	char    buf[64];
-	ssize_t len;
+	int            status;
+	char           buf[64];
+	ssize_t        len;
+	struct IrcConn irc;
 
-	sock = *((int *) args);
+	irc.peer = *((int *) args);
+	irc.nick = malloc(IRC_MAX_NICK_LEN);
 
-	status = send(sock, "Hello! Welcome to the TCP Echo Server.\n\n", 41, 0);
+	status = tcp_send(irc.peer, "NOTICE anonymous: tiny-ircd.\r\n");
 	graceful_negone(status, "send()");
 
 	while (1)
 	{
-		// printf("waiting to read...");
-		len = read(sock, &buf, sizeof(buf));
+		len = read(irc.peer, &buf, sizeof(buf));
 		graceful_negone(len, "read()");
 
-		if (strcmp("quit\n", buf) == 0)
-		{
-			send(sock, "Goodbye.\n", 9, 0);
-			goto cleanup;
-		}
-
-		// printf("sending back...");
-		status = send(sock, buf, len, 0);
-		graceful_negone(status, "send()");
+		handle_irc_packet(&irc, buf);
 	}
 
 	cleanup:
-		shutdown(sock, SHUT_RDWR);
+		shutdown(irc.peer, SHUT_RDWR);
 
 	return NULL;
 }
