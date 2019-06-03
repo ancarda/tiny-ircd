@@ -24,6 +24,8 @@ void irc_notice(struct IrcConn *irc, char *msg)
 void handle_irc_packet(struct IrcConn *irc, char *line)
 {
     int  len;
+    // TODO(ancarda): Rewrite this whole thing:
+    // https://gist.github.com/ancarda/740bd49bb36dbf1e963315ae3d7e161f
     char *cmd = malloc(strlen(line));
 
     len = strcspn(line, " ");
