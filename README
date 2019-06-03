@@ -1,0 +1,3 @@
+tiny-ircd
+
+A small, throwaway IRC server written in C as a learning exercise.
