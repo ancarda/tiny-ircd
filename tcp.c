@@ -1,9 +1,4 @@
-#include <arpa/inet.h> 
-#include <assert.h>
-#include <netinet/ip.h>
-#include <sys/socket.h>
-
-#define guard_negone(x) if (x == -1) { return -1; }
+#include "tcp.h"
 
 // Create a TCP socket that is listening out of the box.
 //

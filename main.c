@@ -5,8 +5,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "tcp.c"
-#include "irc.c"
+#include "tcp.h"
+#include "irc.h"
 
 #define graceful_negone(x, fn) if (x == -1) { perror(fn); goto cleanup; }
 

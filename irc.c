@@ -1,11 +1,5 @@
-#include <string.h>
-
-const int IRC_MAX_NICK_LEN = 9;
-
-struct IrcConn {
-	int peer;
-	char *nick;
-};
+#include "tcp.h"
+#include "irc.h"
 
 void irc_notice(struct IrcConn *irc, char *msg)
 {
