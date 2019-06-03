@@ -41,6 +41,7 @@ void handle_irc_packet(struct IrcConn *irc, char *line)
 
         // TODO(ancarda): Can't memcpy write directly to irc->nick?
         // When I tried this, I just got a segfault. Not sure why just yet.
+        free(irc->nick);
         irc->nick = nick;
 
         irc_notice(irc, "Nick changed!");
