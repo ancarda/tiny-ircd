@@ -27,10 +27,10 @@ int tcp_server(char *listen_addr, int port, int listen_backlog)
     guard_negone(status);
 
     // Bind to 0.0.0.0
-	addr.sin_family      = AF_INET;
-	addr.sin_port        = htons(port);
+    addr.sin_family      = AF_INET;
+    addr.sin_port        = htons(port);
     addr.sin_addr.s_addr = (listen_addr == NULL) ? INADDR_ANY : inet_addr(listen_addr);
-	status = bind(sock, (struct sockaddr *) &addr, sizeof(addr));
+    status = bind(sock, (struct sockaddr *) &addr, sizeof(addr));
     guard_negone(status);
 
     // Start listening

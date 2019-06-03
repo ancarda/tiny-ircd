@@ -6,8 +6,8 @@
 #define IRC_MAX_NICK_LEN 9
 
 struct IrcConn {
-	int peer;
-	char *nick;
+    int peer;
+    char *nick;
 };
 
 void irc_notice(struct IrcConn*, char*);
