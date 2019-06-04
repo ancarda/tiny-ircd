@@ -13,7 +13,6 @@ int tcp_server(char* listen_addr, uint16_t port, int listen_backlog)
     struct sockaddr_in addr;
 
     // Sanity checks
-    // assert(port >= 0);
     assert(port <= 65535);
     assert(listen_backlog > 0);
 
@@ -23,14 +22,14 @@ int tcp_server(char* listen_addr, uint16_t port, int listen_backlog)
 
     // SO_REUSEADDR
     sockopt_val = 1;
-    status = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &sockopt_val, sizeof(sockopt_val));
+    status = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &sockopt_val, (socklen_t) sizeof(sockopt_val));
     guard_negone(status);
 
     // Bind to 0.0.0.0
     addr.sin_family      = AF_INET;
     addr.sin_port        = htons(port);
     addr.sin_addr.s_addr = (listen_addr == NULL) ? INADDR_ANY : inet_addr(listen_addr);
-    status = bind(sock, (struct sockaddr *) &addr, sizeof(addr));
+    status = bind(sock, (struct sockaddr *) &addr, (socklen_t) sizeof(addr));
     guard_negone(status);
 
     // Start listening
