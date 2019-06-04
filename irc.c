@@ -18,6 +18,8 @@ void irc_notice(struct IrcConn* irc, char* msg)
 
     // TODO(ancarda): Handle tcp_send errors.
     tcp_send(irc->peer, line);
+
+    free(line);
 }
 
 void handle_irc_packet(struct IrcConn* irc, char* line)
