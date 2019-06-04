@@ -3,22 +3,14 @@
 
 void irc_notice(struct IrcConn *irc, char *msg)
 {
-    // TODO(ancarda): Stop being lazy and actually do string concatenation.
+    char* line;
+    char* nick;
+
+    nick = (irc->nick == NULL) ? "anonymous" : irc->nick;
+    sprintf(line, "NOTICE %s :%s\r\n", nick, msg);
+
     // TODO(ancarda): Handle tcp_send errors.
-    tcp_send(irc->peer, "NOTICE ");
-    if (irc->nick == NULL)
-    {
-        tcp_send(irc->peer, "anonymous");
-    }
-    else
-    {
-        tcp_send(irc->peer, irc->nick);
-    }
-    tcp_send(irc->peer, " :");
-    if (msg != NULL) {
-        tcp_send(irc->peer, msg);
-    }
-    tcp_send(irc->peer, "\r\n");
+    tcp_send(irc->peer, line);
 }
 
 void handle_irc_packet(struct IrcConn *irc, char *line)
