@@ -8,7 +8,11 @@ void irc_notice(struct IrcConn* irc, char* msg)
     size_t line_len;
 
     nick = (irc->nick == NULL) ? "anonymous" : irc->nick;
+
+    // Allocate bytes for: "NOTICE" (7), the user's nick, " :" (2), the actual
+    // message, "\r\n\0" (3).
     line_len = 7 + strlen(nick) + 2 + strlen(msg) + 3;
+
     line = malloc(line_len);
     snprintf(line, line_len, "NOTICE %s :%s\r\n", nick, msg);
 
