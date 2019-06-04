@@ -9,6 +9,6 @@
 
 #define guard_negone(x) if (x == -1) { return -1; }
 
-int tcp_server(char*, int, int);
+int tcp_server(char*, uint16_t, int);
 
-int tcp_send(int, char*);
+ssize_t tcp_send(int, char*);

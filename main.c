@@ -8,23 +8,19 @@
 #include "tcp.h"
 #include "irc.h"
 
-#define graceful_negone(x, fn) if (x == -1) { perror(fn); goto cleanup; }
+#define LISTEN_BACKLOG 10
 
-const int IRC_PORT       = 6667;
-const int LISTEN_BACKLOG = 10;
+#define graceful_negone(x, fn) if (x == -1) { perror(fn); goto cleanup; }
 
 void *handle_client(void *args)
 {
-    int            status;
     char           buf[64];
     ssize_t        len;
     struct IrcConn irc;
 
     irc.peer = *((int *) args);
-    irc.nick = NULL;
 
-    status = tcp_send(irc.peer, "NOTICE anonymous: tiny-ircd.\r\n");
-    graceful_negone(status, "send()");
+    irc_notice(&irc, "tiny-ircd");
 
     while (1)
     {
@@ -34,8 +30,10 @@ void *handle_client(void *args)
         handle_irc_packet(&irc, buf);
     }
 
-    cleanup:
-        shutdown(irc.peer, SHUT_RDWR);
+cleanup:
+    shutdown(irc.peer, SHUT_RDWR);
+
+    ircconn_destroy(&irc);
 
     return NULL;
 }

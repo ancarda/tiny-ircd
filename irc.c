@@ -1,6 +1,11 @@
 #include "tcp.h"
 #include "irc.h"
 
+void ircconn_destroy(struct IrcConn* irc)
+{
+    free_notnull(irc->nick);
+}
+
 void irc_notice(struct IrcConn* irc, char* msg)
 {
     char*  nick;
@@ -31,11 +36,7 @@ void handle_irc_packet(struct IrcConn* irc, char* line)
     {
         char* nick;
 
-        if (irc->nick != NULL)
-        {
-            free(irc->nick);
-        }
-
+        free_notnull(irc->nick);
         nick = strtok(NULL, "\r\n");
         irc->nick = malloc(strlen(nick));
         strcpy(irc->nick, nick);
