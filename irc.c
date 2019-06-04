@@ -3,11 +3,14 @@
 
 void irc_notice(struct IrcConn* irc, char* msg)
 {
-    char* line;
-    char* nick;
+    char*  nick;
+    char*  line;
+    size_t line_len;
 
     nick = (irc->nick == NULL) ? "anonymous" : irc->nick;
-    sprintf(line, "NOTICE %s :%s\r\n", nick, msg);
+    line_len = 7 + strlen(nick) + 2 + strlen(msg) + 3;
+    line = malloc(line_len);
+    snprintf(line, line_len, "NOTICE %s :%s\r\n", nick, msg);
 
     // TODO(ancarda): Handle tcp_send errors.
     tcp_send(irc->peer, line);
