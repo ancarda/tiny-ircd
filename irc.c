@@ -1,7 +1,7 @@
 #include "tcp.h"
 #include "irc.h"
 
-void irc_notice(struct IrcConn *irc, char *msg)
+void irc_notice(struct IrcConn* irc, char* msg)
 {
     char* line;
     char* nick;
@@ -13,14 +13,14 @@ void irc_notice(struct IrcConn *irc, char *msg)
     tcp_send(irc->peer, line);
 }
 
-void handle_irc_packet(struct IrcConn *irc, char *line)
+void handle_irc_packet(struct IrcConn* irc, char* line)
 {
-    char *cmd;
+    char* cmd;
 
     cmd = strtok(line, " ");
     if (strcmp(cmd, "NICK") == 0)
     {
-        char *nick;
+        char* nick;
 
         if (irc->nick != NULL)
         {

@@ -5,7 +5,7 @@
 // Pass NULL to listen_addr to listen on all interfaces.
 //
 // The port must not be out of range and listen_backlog must be above zero.
-int tcp_server(char *listen_addr, int port, int listen_backlog)
+int tcp_server(char* listen_addr, int port, int listen_backlog)
 {
     int    sock;
     int    status;
@@ -40,7 +40,7 @@ int tcp_server(char *listen_addr, int port, int listen_backlog)
     return sock;
 }
 
-int tcp_send(int sock, char *msg)
+int tcp_send(int sock, char* msg)
 {
     return send(sock, msg, strlen(msg), 0);
 }

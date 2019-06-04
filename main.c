@@ -40,7 +40,7 @@ void *handle_client(void *args)
     return NULL;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     int       sock;
     int       peer;
