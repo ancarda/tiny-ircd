@@ -23,38 +23,22 @@ void irc_notice(struct IrcConn *irc, char *msg)
 
 void handle_irc_packet(struct IrcConn *irc, char *line)
 {
-    int  len;
-    // TODO(ancarda): Rewrite this whole thing:
-    // https://gist.github.com/ancarda/740bd49bb36dbf1e963315ae3d7e161f
-    char *cmd = malloc(strlen(line));
+    char *cmd;
 
-    len = strcspn(line, " ");
-    memcpy(cmd, line, len);
-
+    cmd = strtok(line, " ");
     if (strcmp(cmd, "NICK") == 0)
     {
-        // TODO(ancarda): Check this against IRC_MAX_NICK_LEN.
-        char *nick = malloc(strlen(line) - 5);
+        char *nick;
 
-        // TODO(ancarda): Handle actual line endings.
-        // Here, 2 is taken off the length to accomodate CrLf. Perhaps this
-        // could be handled in a smarter way?
-        memcpy(nick, line + 5, strlen(line) - 7);
+        if (irc->nick != NULL)
+        {
+            free(irc->nick);
+        }
 
-        // TODO(ancarda): Can't memcpy write directly to irc->nick?
-        // When I tried this, I just got a segfault. Not sure why just yet.
-        free(irc->nick);
-        irc->nick = nick;
-
+        nick = strtok(NULL, "\r\n");
+        irc->nick = malloc(strlen(nick));
+        strcpy(irc->nick, nick);
         irc_notice(irc, "Nick changed!");
-    }
-    else if (strcmp(line, "WHOAMI\r\n") == 0)
-    {
-        irc_notice(irc, irc->nick);
-    }
-    else if (strcmp(cmd, "JOIN") == 0)
-    {
-        irc_notice(irc, "JOIN is not yet supported :(");
     }
     else
     {

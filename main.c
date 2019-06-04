@@ -21,7 +21,7 @@ void *handle_client(void *args)
     struct IrcConn irc;
 
     irc.peer = *((int *) args);
-    irc.nick = malloc(IRC_MAX_NICK_LEN + 1);
+    irc.nick = NULL;
 
     status = tcp_send(irc.peer, "NOTICE anonymous: tiny-ircd.\r\n");
     graceful_negone(status, "send()");
