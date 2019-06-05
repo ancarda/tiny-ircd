@@ -4,7 +4,7 @@
 void ircconn_free(struct IrcConn* irc)
 {
     free_notnull(irc->nick);
-    free(irc)
+    free(irc);
 }
 
 int irc_notice(struct IrcConn* irc, char* msg)
