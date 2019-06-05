@@ -14,8 +14,8 @@ struct IrcConn {
     char* nick;
 };
 
-void ircconn_destroy(struct IrcConn* irc);
+void ircconn_free(struct IrcConn* irc);
 
-void irc_notice(struct IrcConn*, char*);
+int irc_notice(struct IrcConn*, char*);
 
 void handle_irc_packet(struct IrcConn*, char*);

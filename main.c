@@ -10,30 +10,32 @@
 
 #define LISTEN_BACKLOG 10
 
-#define graceful_negone(x, fn) if (x == -1) { perror(fn); goto cleanup; }
-
 void *handle_client(void *args)
 {
-    char           buf[64];
-    ssize_t        len;
-    struct IrcConn irc;
+    char            buf[64];
+    struct IrcConn* irc;
+    int             status;
 
-    irc.peer = *((int *) args);
+    irc = malloc(sizeof(struct IrcConn));
+    irc->peer = *((int *) args);
 
-    irc_notice(&irc, "tiny-ircd");
+    status = irc_notice(irc, "tiny-ircd");
 
     while (1)
     {
-        len = read(irc.peer, &buf, sizeof(buf));
-        graceful_negone(len, "read()");
+        if (read(irc->peer, &buf, sizeof(buf)) <= 0)
+        {
+            perror("read()");
+            goto cleanup;
+        }
 
-        handle_irc_packet(&irc, buf);
+        handle_irc_packet(irc, buf);
     }
 
 cleanup:
-    shutdown(irc.peer, SHUT_RDWR);
+    shutdown(irc->peer, SHUT_RDWR);
 
-    ircconn_destroy(&irc);
+    ircconn_free(irc);
 
     return NULL;
 }
