@@ -42,11 +42,12 @@ cleanup:
 
 int main(int argc, char* argv[])
 {
+    pthread_t threads[10];
+    int       thread_id;
     int       sock;
     int       peer;
     struct    sockaddr peer_addr;
     socklen_t peer_addr_sizeof;
-    pthread_t thread_id;
 
     sock = tcp_server("127.0.0.1", IRC_PORT, LISTEN_BACKLOG);
     if (sock == -1)
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
         }
 
-        pthread_create(&thread_id, NULL, handle_client, &peer);
+        pthread_create(&threads[thread_id], NULL, handle_client, &peer);
     }
 
     return EXIT_SUCCESS;
