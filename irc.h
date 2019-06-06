@@ -14,6 +14,8 @@ struct IrcConn {
     char* nick;
 };
 
+struct IrcConn* ircconn_make();
+
 void ircconn_free(struct IrcConn* irc);
 
 int irc_notice(struct IrcConn*, char*);

@@ -16,7 +16,7 @@ void *handle_client(void *args)
     struct IrcConn* irc;
     int             status;
 
-    irc = malloc(sizeof(struct IrcConn));
+    irc = ircconn_make();
     irc->peer = *((int *) args);
 
     status = irc_notice(irc, "tiny-ircd");
