@@ -58,34 +58,86 @@ int irc_err_432_erroneous_nickname(struct IrcConn* irc, char* given_msg)
     return status;
 }
 
-void handle_irc_packet(struct IrcConn* irc, char* line)
+int irc_err_433_nickname_in_use(struct IrcConn* irc)
+{
+	return tcp_send(irc->peer, "433 :Nickname in use\r\n");
+}
+
+void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
+{
+    char* nick;
+    char  was_null;
+
+    nick = strtok(NULL, "\r\n");
+    if (nick == NULL)
+    {
+        irc_err_431_no_nick_given(irc);
+        return;
+    }
+
+    if (strlen(nick) > IRC_MAX_NICK_LEN)
+    {
+        irc_err_432_erroneous_nickname(irc, "Nick exceeds 9 characters");
+        return;
+    }
+
+    // TODO(ancarda): Replace traversal with some generic walk function
+    //
+    // Something like ircconnpool_walk(pool, fn, arg) might be useful, where
+    // the given callback looks like this:
+    //
+    //     char fn(struct IrcConn item*, void* arg)
+    //
+    // If fn() returns 1, it means move to the next item. If 0 is returned,
+    // it would mean return `item` to the parent. NULL is given if fn() never
+    // returned 1.
+    //
+    // An advantage is walk() can place locks around the pool. Of course, I
+    // could lock here, but locking and - touching len - outside ircconnpool.c
+    // makes me uncomfortable. I'd rather centralize what will be a very common
+    // operation (loop over the pool with some basic predicate) into a well
+    // tested function.
+    for (int i = 0; i < pool->len; i++)
+    {
+        if (pool->val[i]->nick != NULL && strcmp(pool->val[i]->nick, nick) == 0)
+        {
+            irc_err_433_nickname_in_use(irc);
+            return;
+        }
+    }
+
+    was_null = (irc->nick == NULL) ? 1 : 0;
+
+    free_notnull(irc->nick);
+    irc->nick = malloc(strlen(nick));
+    strcpy(irc->nick, nick);
+    irc_notice(irc, "Nick changed!");
+
+    if (was_null == 1)
+    {
+        int broadcast_msg_len = 33 + strlen(nick);
+        char* broadcast_msg = malloc(broadcast_msg_len);
+        snprintf(broadcast_msg, broadcast_msg_len, "Say hello to our newest member: %s!", nick);
+        for (int i = 0; i < pool->len; i++)
+        {
+            if (pool->val[i] != irc)
+            {
+                irc_notice(pool->val[i], broadcast_msg);
+            }
+        }
+
+        free(broadcast_msg);
+    }
+}
+
+void handle_irc_packet(struct IrcConn* irc, struct IrcConnPool* pool, char* line)
 {
     char* cmd;
 
     cmd = strtok(line, " ");
     if (strcmp(cmd, "NICK") == 0)
     {
-        char* nick;
-
-        nick = strtok(NULL, "\r\n");
-        if (nick == NULL)
-        {
-            irc_err_431_no_nick_given(irc);
-            return;
-        }
-
-        if (strlen(nick) > IRC_MAX_NICK_LEN)
-        {
-            irc_err_432_erroneous_nickname(irc, "Nick exceeds 9 characters");
-            return;
-        }
-
-        // TODO(ancarda): Support ERR_NICKNAMEINUSE (433)
-
-        free_notnull(irc->nick);
-        irc->nick = malloc(strlen(nick));
-        strcpy(irc->nick, nick);
-        irc_notice(irc, "Nick changed!");
+        handle_nick(irc, pool);
     }
     else
     {

@@ -42,7 +42,7 @@ void *handle_client(void* arg)
             goto cleanup;
         }
 
-        handle_irc_packet(irc, buf);
+        handle_irc_packet(irc, ctx->pool, buf);
     }
 
 cleanup:
