@@ -7,18 +7,18 @@
 #include <pthread.h>
 #include "tcp.h"
 #include "ircconn.h"
+#include "ircconnpool.h"
 #include "irc.h"
 
 #define LISTEN_BACKLOG 10
 
-void *handle_client(void *args)
+void *handle_client(void* args)
 {
     char            buf[64];
-    struct IrcConn* irc;
     int             status;
+    struct IrcConn* irc;
 
-    irc = ircconn_make();
-    irc->peer = *((int *) args);
+    irc = (struct IrcConn*) args;
 
     status = irc_notice(irc, "tiny-ircd");
 
@@ -43,12 +43,20 @@ cleanup:
 
 int main(int argc, char* argv[])
 {
-    pthread_t threads[10];
-    int       thread_id;
-    int       sock;
-    int       peer;
-    struct    sockaddr peer_addr;
-    socklen_t peer_addr_sizeof;
+    pthread_t*          threads;
+    int                 threads_len;
+    int                 threads_cap;
+    int                 sock;
+    int                 peer;
+    struct sockaddr     peer_addr;
+    socklen_t           peer_addr_sizeof;
+    struct IrcConnPool* pool;
+    struct IrcConn*     irc;
+
+    pool = ircconnpool_make(10);
+    threads_len = 0;
+    threads_cap = 100;
+    threads = malloc(threads_cap * sizeof(pthread_t));
 
     sock = tcp_server("127.0.0.1", IRC_PORT, LISTEN_BACKLOG);
     if (sock == -1)
@@ -69,7 +77,19 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
         }
 
-        pthread_create(&threads[thread_id], NULL, handle_client, &peer);
+        irc = ircconn_make();
+        irc->peer = peer;
+
+        ircconnpool_push(pool, irc);
+
+        if (threads_len == threads_cap)
+        {
+            threads = realloc(threads, (threads_len + 100) * sizeof(pthread_t));
+            threads_cap = threads_len + 100;
+        }
+
+        pthread_create(&threads[threads_len], NULL, handle_client, irc);
+        threads_len++;
     }
 
     return EXIT_SUCCESS;
