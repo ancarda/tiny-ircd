@@ -12,13 +12,25 @@
 
 #define LISTEN_BACKLOG 10
 
-void *handle_client(void* args)
+struct Context
+{
+    struct IrcConnPool* pool;
+    int                 peer;
+};
+
+void *handle_client(void* arg)
 {
     char            buf[64];
     int             status;
+    struct Context* ctx;
     struct IrcConn* irc;
 
-    irc = (struct IrcConn*) args;
+    ctx = (struct Context*) arg;
+
+    irc = ircconn_make();
+    irc->peer = ctx->peer;
+
+    ircconnpool_push(ctx->pool, irc);
 
     status = irc_notice(irc, "tiny-ircd");
 
@@ -37,6 +49,9 @@ cleanup:
     shutdown(irc->peer, SHUT_RDWR);
 
     ircconn_free(irc);
+    ircconnpool_remove(ctx->pool, irc);
+
+    free(ctx);
 
     return NULL;
 }
@@ -52,6 +67,7 @@ int main(int argc, char* argv[])
     socklen_t           peer_addr_sizeof;
     struct IrcConnPool* pool;
     struct IrcConn*     irc;
+    struct Context*     ctx;
 
     pool = ircconnpool_make(10);
     threads_len = 0;
@@ -77,18 +93,17 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
         }
 
-        irc = ircconn_make();
-        irc->peer = peer;
-
-        ircconnpool_push(pool, irc);
-
         if (threads_len == threads_cap)
         {
             threads = realloc(threads, (threads_len + 100) * sizeof(pthread_t));
             threads_cap = threads_len + 100;
         }
 
-        pthread_create(&threads[threads_len], NULL, handle_client, irc);
+        ctx = malloc(sizeof(ctx));
+        ctx->peer = peer;
+        ctx->pool = pool;
+
+        pthread_create(&threads[threads_len], NULL, handle_client, ctx);
         threads_len++;
     }
 

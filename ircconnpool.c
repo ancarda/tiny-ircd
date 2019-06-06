@@ -38,3 +38,34 @@ void ircconnpool_push(struct IrcConnPool* pool, struct IrcConn* conn)
     pool->len++;
     // TODO(ancarda): release mutex lock
 }
+
+int ircconnpool_remove(struct IrcConnPool* pool, struct IrcConn* conn)
+{
+    int i;
+
+    // TODO(ancarda): acquire mutex lock
+
+    for (i = 0; i < pool->len; i++)
+    {
+        if (pool->val[i] == conn)
+        {
+            goto destroy;
+        }
+    }
+
+    // TODO(ancarda): release mutex lock
+
+    return 0;
+
+destroy:
+    for (; i < pool->len; i++)
+    {
+        pool->val[i] = pool->val[i + 1];
+        pool->val[i + 1] = NULL;
+        pool->len--;
+    }
+
+    // TODO(ancarda): release mutex lock
+
+    return 1;
+}
