@@ -20,4 +20,8 @@ void ircconn_free(struct IrcConn* irc);
 
 int irc_notice(struct IrcConn*, char*);
 
+int irc_err_431_no_nick_given(struct IrcConn* irc);
+
+int irc_err_432_erroneous_nickname(struct IrcConn* irc, char* given_msg);
+
 void handle_irc_packet(struct IrcConn*, char*);
