@@ -3,8 +3,11 @@ LDFLAGS=-pthread
 
 all: tinyircd
 
-tinyircd: irc.o tcp.o main.o
-	gcc $(CFLAGS) irc.o tcp.o main.o -o tinyircd -pthread
+tinyircd: ircconn.o irc.o tcp.o main.o
+	gcc $(CFLAGS) ircconn.o irc.o tcp.o main.o -o tinyircd -pthread
+
+ircconn.o: ircconn.c
+	gcc $(CFLAGS) -c ircconn.c -o ircconn.o
 
 irc.o: irc.c
 	gcc $(CFLAGS) -c irc.c -o irc.o

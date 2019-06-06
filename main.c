@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "tcp.h"
+#include "ircconn.h"
 #include "irc.h"
 
 #define LISTEN_BACKLOG 10
