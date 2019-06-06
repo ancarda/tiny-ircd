@@ -61,9 +61,8 @@ destroy:
     for (; i < pool->len; i++)
     {
         pool->val[i] = pool->val[i + 1];
-        pool->val[i + 1] = NULL;
-        pool->len--;
     }
+    pool->len--;
 
     // TODO(ancarda): release mutex lock
 
