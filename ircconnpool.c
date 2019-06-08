@@ -22,6 +22,7 @@ struct IrcConnPool* ircconnpool_make(int cap)
 {
     struct IrcConnPool* pool;
     pthread_mutex_t     mtx;
+    pthread_mutexattr_t mtx_attr;
 
     assert(cap > 0);
 
@@ -30,7 +31,8 @@ struct IrcConnPool* ircconnpool_make(int cap)
     pool->cap = cap;
     pool->val = malloc(pool->cap * sizeof(pool->val));
 
-    assert(pthread_mutex_init(&mtx, NULL) == 0);
+    pthread_mutexattr_init(&mtx_attr);
+    assert(pthread_mutex_init(&mtx, &mtx_attr) == 0);
     pool->lck = &mtx;
 
     return pool;
