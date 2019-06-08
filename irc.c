@@ -23,9 +23,48 @@ int irc_notice(struct IrcConn* irc, char* msg)
     return status;
 }
 
+int irc_pong(struct IrcConn* irc)
+{
+    char*  line;
+    size_t line_len;
+    int    status;
+    char*  ping;
+
+    ping = strtok(NULL, "\r\n");
+    if (ping == NULL)
+    {
+        return 0;
+    }
+
+    line_len = 8 + strlen(ping);
+    line = malloc(line_len);
+    snprintf(line, line_len, "PONG %s\r\n", ping);
+
+    status = tcp_send(irc->peer, line);
+    free(line);
+    return status;
+}
+
+int irc_rpl_001_welcome(struct IrcConn* irc)
+{
+    char*  line;
+    size_t line_len;
+    int    status;
+
+    assert(irc->nick != NULL);
+
+    line_len = 17 + strlen(irc->nick);
+    line     = malloc(line_len);
+    snprintf(line, line_len, "001 :Welcome %s\r\n", irc->nick);
+
+    status = tcp_send(irc->peer, line);
+    free(line);
+    return status;
+}
+
 int irc_err_431_no_nick_given(struct IrcConn* irc)
 {
-	return tcp_send(irc->peer, "431 :No nickname given\r\n");
+    return tcp_send(irc->peer, "431 :No nickname given\r\n");
 }
 
 int irc_err_432_erroneous_nickname(struct IrcConn* irc, char* given_msg)
@@ -60,7 +99,7 @@ int irc_err_432_erroneous_nickname(struct IrcConn* irc, char* given_msg)
 
 int irc_err_433_nickname_in_use(struct IrcConn* irc)
 {
-	return tcp_send(irc->peer, "433 :Nickname in use\r\n");
+    return tcp_send(irc->peer, "433 :Nickname in use\r\n");
 }
 
 char walk_nick_eq(struct IrcConn* irc, void* nick)
@@ -127,6 +166,8 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
 
     if (was_null == 1)
     {
+        irc_rpl_001_welcome(irc);
+
         int broadcast_msg_len = 33 + strlen(nick);
         char* broadcast_msg = malloc(broadcast_msg_len);
         struct walk_cond_notice_data cn;
@@ -149,8 +190,13 @@ void handle_irc_packet(struct IrcConn* irc, struct IrcConnPool* pool, char* line
     {
         handle_nick(irc, pool);
     }
+    else if (strcmp(cmd, "PING") == 0)
+    {
+        irc_pong(irc);
+    }
     else
     {
+        // TODO(ancarda): Replace this with error 421 (Unknown Command)
         irc_notice(irc, "Unknown command");
     }
 }
