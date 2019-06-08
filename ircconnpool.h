@@ -1,13 +1,15 @@
 #pragma once
 
 #include <assert.h>
+#include <pthread.h>
 #include "ircconn.h"
 
 struct IrcConnPool
 {
-    int              len;
-    int              cap;
-    struct IrcConn** val;
+    int                 len;
+    int                 cap;
+    struct IrcConn**    val;
+    pthread_mutex_t*    lck;
 };
 
 struct IrcConnPool* ircconnpool_make(int);
