@@ -67,6 +67,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
 {
     char* nick;
     char  was_null;
+    int   i;
 
     nick = strtok(NULL, "\r\n");
     if (nick == NULL)
@@ -97,7 +98,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
     // makes me uncomfortable. I'd rather centralize what will be a very common
     // operation (loop over the pool with some basic predicate) into a well
     // tested function.
-    for (int i = 0; i < pool->len; i++)
+    for (i = 0; i < pool->len; i++)
     {
         if (pool->val[i]->nick != NULL && strcmp(pool->val[i]->nick, nick) == 0)
         {
@@ -118,7 +119,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
         int broadcast_msg_len = 33 + strlen(nick);
         char* broadcast_msg = malloc(broadcast_msg_len);
         snprintf(broadcast_msg, broadcast_msg_len, "Say hello to our newest member: %s!", nick);
-        for (int i = 0; i < pool->len; i++)
+        for (i = 0; i < pool->len; i++)
         {
             if (pool->val[i] != irc)
             {
