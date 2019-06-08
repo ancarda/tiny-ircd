@@ -2,10 +2,10 @@
 
 struct IrcConnPool
 {
-    int                 len;
-    int                 cap;
-    struct IrcConn**    val;
-    pthread_mutex_t*    lck;
+    int              len;
+    int              cap;
+    struct IrcConn** val;
+    pthread_mutex_t* lck;
 };
 
 void __lock(struct IrcConnPool* pool)
@@ -27,7 +27,7 @@ struct IrcConnPool* ircconnpool_make(int cap)
 
     pool = malloc(sizeof(pool));
     pool->len = 0;
-    pool->cap = 10;
+    pool->cap = cap;
     pool->val = malloc(pool->cap * sizeof(pool->val));
 
     assert(pthread_mutex_init(&mtx, NULL) == 0);
