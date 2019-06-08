@@ -63,6 +63,36 @@ int irc_err_433_nickname_in_use(struct IrcConn* irc)
 	return tcp_send(irc->peer, "433 :Nickname in use\r\n");
 }
 
+char walk_nick_eq(struct IrcConn* irc, void* nick)
+{
+    if (irc->nick == NULL)
+    {
+        return IRCCONNPOOL_WALK_NEXT_ITEM;
+    }
+
+    return strcmp(irc->nick, (char*) nick) == 0;
+}
+
+struct walk_cond_notice_data
+{
+    char*           msg;
+    struct IrcConn* excl;
+};
+
+char walk_cond_notice(struct IrcConn* irc, void* arg)
+{
+    struct walk_cond_notice_data* cn;
+
+    cn = (struct walk_cond_notice_data*) arg;
+
+    if (irc == cn->excl)
+    {
+        return IRCCONNPOOL_WALK_NEXT_ITEM;
+    }
+
+    irc_notice(irc, cn->msg);
+}
+
 void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
 {
     char* nick;
@@ -82,29 +112,10 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
         return;
     }
 
-    // TODO(ancarda): Replace traversal with some generic walk function
-    //
-    // Something like ircconnpool_walk(pool, fn, arg) might be useful, where
-    // the given callback looks like this:
-    //
-    //     char fn(struct IrcConn item*, void* arg)
-    //
-    // If fn() returns 1, it means move to the next item. If 0 is returned,
-    // it would mean return `item` to the parent. NULL is given if fn() never
-    // returned 1.
-    //
-    // An advantage is walk() can place locks around the pool. Of course, I
-    // could lock here, but locking and - touching len - outside ircconnpool.c
-    // makes me uncomfortable. I'd rather centralize what will be a very common
-    // operation (loop over the pool with some basic predicate) into a well
-    // tested function.
-    for (i = 0; i < pool->len; i++)
+    if (ircconnpool_walk(pool, walk_nick_eq, nick) != NULL)
     {
-        if (pool->val[i]->nick != NULL && strcmp(pool->val[i]->nick, nick) == 0)
-        {
-            irc_err_433_nickname_in_use(irc);
-            return;
-        }
+        irc_err_433_nickname_in_use(irc);
+        return;
     }
 
     was_null = (irc->nick == NULL) ? 1 : 0;
@@ -118,14 +129,12 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
     {
         int broadcast_msg_len = 33 + strlen(nick);
         char* broadcast_msg = malloc(broadcast_msg_len);
+        struct walk_cond_notice_data cn;
+
         snprintf(broadcast_msg, broadcast_msg_len, "Say hello to our newest member: %s!", nick);
-        for (i = 0; i < pool->len; i++)
-        {
-            if (pool->val[i] != irc)
-            {
-                irc_notice(pool->val[i], broadcast_msg);
-            }
-        }
+        cn.msg = broadcast_msg;
+        cn.excl = irc;
+        ircconnpool_walk(pool, walk_cond_notice, &cn);
 
         free(broadcast_msg);
     }

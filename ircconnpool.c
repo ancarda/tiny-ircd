@@ -1,5 +1,13 @@
 #include "ircconnpool.h"
 
+struct IrcConnPool
+{
+    int                 len;
+    int                 cap;
+    struct IrcConn**    val;
+    pthread_mutex_t*    lck;
+};
+
 void __lock(struct IrcConnPool* pool)
 {
     assert(pthread_mutex_lock(pool->lck) == 0);
@@ -84,4 +92,26 @@ destroy:
     __unlock(pool);
 
     return 1;
+}
+
+void* ircconnpool_walk(struct IrcConnPool* pool, char (fn)(struct IrcConn*, void*), void* arg)
+{
+    int  i;
+    char r;
+
+    __lock(pool);
+
+    for (i = 0; i < pool->len; i++)
+    {
+        r = fn(pool->val[i], arg);
+
+        if (r == 1)
+        {
+            __unlock(pool);
+            return arg;
+        }
+    }
+
+    __unlock(pool);
+    return NULL;
 }
