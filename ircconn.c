@@ -1,3 +1,4 @@
+#include "tinyirc.h"
 #include "ircconn.h"
 
 struct IrcConn* ircconn_make()
@@ -13,6 +14,6 @@ struct IrcConn* ircconn_make()
 
 void ircconn_free(struct IrcConn* irc)
 {
-    free_notnull(irc->nick);
+    FREE_NOT_NULL(irc->nick);
     free(irc);
 }

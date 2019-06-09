@@ -159,7 +159,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
 
     was_null = (irc->nick == NULL) ? 1 : 0;
 
-    free_notnull(irc->nick);
+    FREE_NOT_NULL(irc->nick);
     irc->nick = malloc(strlen(nick));
     strcpy(irc->nick, nick);
     irc_notice(irc, "Nick changed!");

@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define free_notnull(x) if (x != NULL) { free(x); }
-
 struct IrcConn {
     int   peer;
     char* nick;

@@ -3,13 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "tinyirc.h"
 #include "ircconn.h"
 #include "ircconnpool.h"
 
 #define IRC_MAX_NICK_LEN 9
 #define IRC_PORT         6667
-
-#define free_notnull(x) if (x != NULL) { free(x); }
 
 int irc_notice(struct IrcConn*, char*);
 
