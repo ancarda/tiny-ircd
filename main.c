@@ -66,7 +66,6 @@ int main(int argc, char* argv[])
     struct sockaddr     peer_addr;
     socklen_t           peer_addr_sizeof;
     struct IrcConnPool* pool;
-    struct IrcConn*     irc;
     struct Context*     ctx;
 
     pool = ircconnpool_make(10);

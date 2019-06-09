@@ -138,7 +138,6 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
 {
     char* nick;
     char  was_null;
-    int   i;
 
     nick = strtok(NULL, "\r\n");
     if (nick == NULL)
