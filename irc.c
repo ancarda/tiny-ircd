@@ -130,6 +130,8 @@ char walk_cond_notice(struct IrcConn* irc, void* arg)
     }
 
     irc_notice(irc, cn->msg);
+
+    return IRCCONNPOOL_WALK_NEXT_ITEM;
 }
 
 void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
