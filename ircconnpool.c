@@ -21,19 +21,18 @@ void __unlock(struct IrcConnPool* pool)
 struct IrcConnPool* ircconnpool_make(int cap)
 {
     struct IrcConnPool* pool;
-    pthread_mutex_t     mtx;
-    pthread_mutexattr_t mtx_attr;
+    pthread_mutex_t*    mtx;
 
     assert(cap > 0);
 
+    mtx  = malloc(sizeof(mtx));
     pool = malloc(sizeof(pool));
     pool->len = 0;
     pool->cap = cap;
     pool->val = malloc(pool->cap * sizeof(pool->val));
 
-    pthread_mutexattr_init(&mtx_attr);
-    assert(pthread_mutex_init(&mtx, &mtx_attr) == 0);
-    pool->lck = &mtx;
+    assert(pthread_mutex_init(mtx, NULL) == 0);
+    pool->lck = mtx;
 
     return pool;
 }
@@ -47,6 +46,7 @@ void ircconnpool_free(struct IrcConnPool* pool)
     }
 
     pthread_mutex_destroy(pool->lck);
+    free(pool->lck);
     free(pool);
 }
 
@@ -94,6 +94,11 @@ destroy:
     __unlock(pool);
 
     return 1;
+}
+
+int ircconnpool_len(struct IrcConnPool* pool)
+{
+    return pool->len;
 }
 
 void* ircconnpool_walk(struct IrcConnPool* pool, char (fn)(struct IrcConn*, void*), void* arg)

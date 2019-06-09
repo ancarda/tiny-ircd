@@ -17,6 +17,8 @@ void ircconnpool_push(struct IrcConnPool*, struct IrcConn*);
 
 int ircconnpool_remove(struct IrcConnPool*, struct IrcConn*);
 
+int ircconnpool_len(struct IrcConnPool*);
+
 // Walk the pool, calling the provided function (second argument):
 //
 //     fn(struct IrcConn*, arg) -> char
