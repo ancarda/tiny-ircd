@@ -66,7 +66,7 @@ void ircconnpool_push(struct IrcConnPool* pool, struct IrcConn* conn)
     __unlock(pool);
 }
 
-int ircconnpool_remove(struct IrcConnPool* pool, struct IrcConn* conn)
+bool ircconnpool_remove(struct IrcConnPool* pool, struct IrcConn* conn)
 {
     int i;
 
@@ -82,7 +82,7 @@ int ircconnpool_remove(struct IrcConnPool* pool, struct IrcConn* conn)
 
     __unlock(pool);
 
-    return 0;
+    return false;
 
 destroy:
     for (; i < pool->len; i++)
@@ -93,7 +93,7 @@ destroy:
 
     __unlock(pool);
 
-    return 1;
+    return true;
 }
 
 int ircconnpool_len(struct IrcConnPool* pool)

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include "ircconn.h"
 
 #define IRCCONNPOOL_WALK_NEXT_ITEM  0
@@ -15,7 +16,7 @@ void ircconnpool_free(struct IrcConnPool*);
 
 void ircconnpool_push(struct IrcConnPool*, struct IrcConn*);
 
-int ircconnpool_remove(struct IrcConnPool*, struct IrcConn*);
+bool ircconnpool_remove(struct IrcConnPool*, struct IrcConn*);
 
 int ircconnpool_len(struct IrcConnPool*);
 
