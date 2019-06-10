@@ -5,7 +5,7 @@ struct IrcConn* ircconn_make()
 {
     struct IrcConn* irc;
 
-    irc = malloc(sizeof(struct IrcConn*));
+    irc = malloc(sizeof(*irc));
     irc->peer = 0;
     irc->nick = NULL;
 

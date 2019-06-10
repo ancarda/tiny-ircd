@@ -9,7 +9,7 @@
 
 struct IrcConnPool;
 
-struct IrcConnPool* ircconnpool_make(int);
+struct IrcConnPool* ircconnpool_make(size_t);
 
 void ircconnpool_free(struct IrcConnPool*);
 

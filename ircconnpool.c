@@ -18,15 +18,15 @@ void __unlock(struct IrcConnPool* pool)
     assert(pthread_mutex_unlock(pool->lck) == 0);
 }
 
-struct IrcConnPool* ircconnpool_make(int cap)
+struct IrcConnPool* ircconnpool_make(size_t cap)
 {
     struct IrcConnPool* pool;
     pthread_mutex_t*    mtx;
 
     assert(cap > 0);
 
-    mtx  = malloc(sizeof(mtx));
-    pool = malloc(sizeof(pool));
+    mtx  = malloc(sizeof(*mtx));
+    pool = malloc(sizeof(*pool));
     pool->len = 0;
     pool->cap = cap;
     pool->val = malloc(pool->cap * sizeof(pool->val));

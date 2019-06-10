@@ -21,7 +21,6 @@ struct Context
 void *handle_client(void* arg)
 {
     char            buf[64];
-    int             status;
     struct Context* ctx;
     struct IrcConn* irc;
 
@@ -32,7 +31,7 @@ void *handle_client(void* arg)
 
     ircconnpool_push(ctx->pool, irc);
 
-    status = irc_notice(irc, "tiny-ircd");
+    irc_notice(irc, "tiny-ircd");
 
     while (1)
     {
@@ -98,7 +97,7 @@ int main(int argc, char* argv[])
             threads_cap = threads_len + 100;
         }
 
-        ctx = malloc(sizeof(ctx));
+        ctx = malloc(sizeof(*ctx));
         ctx->peer = peer;
         ctx->pool = pool;
 

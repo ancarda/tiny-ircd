@@ -161,7 +161,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
     was_null = (irc->nick == NULL) ? 1 : 0;
 
     FREE_NOT_NULL(irc->nick);
-    irc->nick = malloc(strlen(nick));
+    irc->nick = malloc(strlen(nick) + 1);
     strcpy(irc->nick, nick);
     irc_notice(irc, "Nick changed!");
 
@@ -169,7 +169,7 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
     {
         irc_rpl_001_welcome(irc);
 
-        int broadcast_msg_len = 33 + strlen(nick);
+        int broadcast_msg_len = 34 + strlen(nick);
         char* broadcast_msg = malloc(broadcast_msg_len);
         struct walk_cond_notice_data cn;
 
