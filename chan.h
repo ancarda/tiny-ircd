@@ -3,27 +3,27 @@
 #include "tinyirc.h"
 #include "ircconn.h"
 
-struct Chan;
+typedef struct Chan Chan;
 
-struct Chan* chan_make();
+Chan* chan_make();
 
 // Returns a copy of this channel's name, eg. #lobby
 //
 // Returned pointer must be freed by the upstream caller.
-char* chan_getname(struct Chan*);
+char* chan_getname(Chan*);
 
 // Returns a copy of this channel's topic, eg. Default channel
 //
 // Returned value may be NULL.
 //
 // Returned pointer must be freed by the upstream caller.
-char* chan_gettopic(struct Chan*);
+char* chan_gettopic(Chan*);
 
 // Sets this channel's topic.
-void chan_settopic(struct Chan*, char*);
+void chan_settopic(Chan*, char*);
 
 // Returns a count of the people in this channel.
-int chan_len(struct Chan*);
+int chan_len(Chan*);
 
 // Adds a new irc connection into this channel.
-void chan_push(struct Chan*, struct IrcConn*);
+void chan_push(Chan*, struct IrcConn*);

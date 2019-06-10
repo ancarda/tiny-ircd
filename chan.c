@@ -1,14 +1,16 @@
 #include "chan.h"
 
+typedef struct ChanEntry ChanEntry;
+
 struct ChanEntry
 {
-    struct IrcConn*   val;
-    struct ChanEntry* nxt;
+    struct IrcConn* val;
+    ChanEntry*      nxt;
 };
 
-struct ChanEntry* chanentry_make(struct IrcConn* irc)
+ChanEntry* chanentry_make(struct IrcConn* irc)
 {
-    struct ChanEntry* ce;
+    ChanEntry* ce;
 
     ce = malloc(sizeof(*ce));
     assert(ce != NULL);
@@ -20,16 +22,16 @@ struct ChanEntry* chanentry_make(struct IrcConn* irc)
 
 struct Chan
 {
-    char*             name;
-    char*             topic;  /*@NULL@*/
-    struct ChanEntry* p_head; /*@NULL@*/
-    struct ChanEntry* p_tail; /*@NULL@*/
-    int               len;
+    char*      name;
+    char*      topic;  /*@NULL@*/
+    ChanEntry* p_head; /*@NULL@*/
+    ChanEntry* p_tail; /*@NULL@*/
+    int        len;
 };
 
-struct Chan* chan_make(char* name)
+Chan* chan_make(char* name)
 {
-    struct Chan* chan;
+    Chan* chan;
 
     chan = malloc(sizeof(*chan));
     assert(chan != NULL);
@@ -43,12 +45,12 @@ struct Chan* chan_make(char* name)
     return chan;
 }
 
-char* chan_getname(struct Chan* chan)
+char* chan_getname(Chan* chan)
 {
     return strdup(chan->name);
 }
 
-char* chan_gettopic(struct Chan* chan)
+char* chan_gettopic(Chan* chan)
 {
     if (chan->topic == NULL)
     {
@@ -58,7 +60,7 @@ char* chan_gettopic(struct Chan* chan)
     return strdup(chan->topic);
 }
 
-void chan_settopic(struct Chan* chan, char* topic)
+void chan_settopic(Chan* chan, char* topic)
 {
     size_t len;
 
@@ -78,14 +80,14 @@ void chan_settopic(struct Chan* chan, char* topic)
     strcpy(chan->topic, topic);
 }
 
-int chan_len(struct Chan* chan)
+int chan_len(Chan* chan)
 {
     return chan->len;
 }
 
-void chan_push(struct Chan* chan, struct IrcConn* irc)
+void chan_push(Chan* chan, struct IrcConn* irc)
 {
-    struct ChanEntry* ce;
+    ChanEntry* ce;
 
     ce = chanentry_make(irc);
     chan->len++;
