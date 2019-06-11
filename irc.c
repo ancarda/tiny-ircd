@@ -106,7 +106,7 @@ char walk_nick_eq(struct IrcConn* irc, void* nick)
 {
     if (irc->nick == NULL)
     {
-        return IRCCONNPOOL_WALK_NEXT_ITEM;
+        return WALK_NEXT_ITEM;
     }
 
     return strcmp(irc->nick, (char*) nick) == 0;
@@ -126,12 +126,12 @@ char walk_cond_notice(struct IrcConn* irc, void* arg)
 
     if (irc == cn->excl)
     {
-        return IRCCONNPOOL_WALK_NEXT_ITEM;
+        return WALK_NEXT_ITEM;
     }
 
     irc_notice(irc, cn->msg);
 
-    return IRCCONNPOOL_WALK_NEXT_ITEM;
+    return WALK_NEXT_ITEM;
 }
 
 void handle_nick(struct IrcConn* irc, IrcConnPool* pool)
@@ -182,11 +182,40 @@ void handle_nick(struct IrcConn* irc, IrcConnPool* pool)
     }
 }
 
-void handle_join(struct IrcConn* irc, ChanPool* cp, char* chan_name)
+void handle_join(struct IrcConn* irc, ChanPool* cp)
 {
-    // TODO(ancarda): chanpool_walk to find the requested channel.
-    // If it does not exist, create it and push it into the ChanPool.
-    // Finally, register the user bidirectionally:
+    char* chan_name;
+    void* maybe_chan;
+    Chan* chan;
+
+    chan_name = strtok(NULL, "\r\n");
+    if (chan_name == NULL)
+    {
+        // TODO(ancarda): Handle no channel name given somehow?
+        irc_notice(irc, "No channel given");
+        return;
+    }
+
+    if (irc->nick == NULL)
+    {
+        irc_notice(irc, "You cannot JOIN a channel until you authenticate with NICK!");
+        return;
+    }
+
+    maybe_chan = chanpool_walk(cp, chan_walkfn_name_eq, chan_name, WALK_MODE_RETURN_VAL);
+    if (maybe_chan == NULL)
+    {
+        chan = chan_make(chan_name);
+        chanpool_push(cp, chan);
+        irc_notice(irc, "Channel made.");
+    }
+    else
+    {
+        chan = (Chan*) maybe_chan;
+        irc_notice(irc, chan_getname(chan));
+    }
+
+    // TODO(ancarda): Now we have chan, register the user bidirectionally:
     //
     //     ircconn_push(chan);
     //     chan_push(irc);
@@ -200,6 +229,10 @@ void handle_irc_packet(struct IrcConn* irc, IrcConnPool* pool, ChanPool* cp, cha
     if (strcmp(cmd, "NICK") == 0)
     {
         handle_nick(irc, pool);
+    }
+    else if (strcmp(cmd, "JOIN") == 0)
+    {
+        handle_join(irc, cp);
     }
     else if (strcmp(cmd, "PING") == 0)
     {

@@ -102,3 +102,13 @@ void chan_push(Chan* chan, struct IrcConn* irc)
     chan->p_tail->nxt = ce;
     chan->p_tail = ce;
 }
+
+char chan_walkfn_name_eq(Chan* chan, void* name)
+{
+    if (strcmp(chan->name, (char*) name) == 0)
+    {
+        return WALK_TERMINATE;
+    }
+
+    return WALK_NEXT_ITEM;
+}

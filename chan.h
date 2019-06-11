@@ -27,3 +27,6 @@ int chan_len(Chan*);
 
 // Adds a new irc connection into this channel.
 void chan_push(Chan*, struct IrcConn*);
+
+// Walk function that finds a channel based on it's name.
+char chan_walkfn_name_eq(Chan*, void*);

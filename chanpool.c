@@ -65,3 +65,39 @@ int chanpool_len(ChanPool* cp)
 {
     return cp->len;
 }
+
+void* chanpool_walk(ChanPool* pool, char (fn)(Chan*, void*), void* arg, int mode)
+{
+    struct ChanPoolEntry* ptr;
+    char                  ret;
+
+    assert(mode == WALK_MODE_RETURN_ARG || mode == WALK_MODE_RETURN_VAL);
+
+    // TODO(ancarda): lock
+
+    ptr = pool->p_head;
+
+    while (ptr != NULL)
+    {
+        ret = fn(ptr->val, arg);
+        if (ret == WALK_TERMINATE)
+        {
+            // TODO(ancarda): unlock
+
+            if (mode == WALK_MODE_RETURN_ARG)
+            {
+                return arg;
+            }
+            else if (mode == WALK_MODE_RETURN_VAL)
+            {
+                return ptr->val;
+            }
+        }
+
+        ptr = ptr->nxt;
+    }
+
+    // TODO(ancarda): unlock
+
+    return NULL;
+}
