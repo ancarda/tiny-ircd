@@ -8,20 +8,20 @@ struct IrcConnPool
     pthread_mutex_t* lck;
 };
 
-void __lock(struct IrcConnPool* pool)
+void __lock(IrcConnPool* pool)
 {
     assert(pthread_mutex_lock(pool->lck) == 0);
 }
 
-void __unlock(struct IrcConnPool* pool)
+void __unlock(IrcConnPool* pool)
 {
     assert(pthread_mutex_unlock(pool->lck) == 0);
 }
 
-struct IrcConnPool* ircconnpool_make(size_t cap)
+IrcConnPool* ircconnpool_make(size_t cap)
 {
-    struct IrcConnPool* pool;
-    pthread_mutex_t*    mtx;
+    IrcConnPool*     pool;
+    pthread_mutex_t* mtx;
 
     assert(cap > 0);
 
@@ -37,7 +37,7 @@ struct IrcConnPool* ircconnpool_make(size_t cap)
     return pool;
 }
 
-void ircconnpool_free(struct IrcConnPool* pool)
+void ircconnpool_free(IrcConnPool* pool)
 {
     int i;
     for (i = 0; i <= pool->len; i++)
@@ -50,7 +50,7 @@ void ircconnpool_free(struct IrcConnPool* pool)
     free(pool);
 }
 
-void ircconnpool_push(struct IrcConnPool* pool, struct IrcConn* conn)
+void ircconnpool_push(IrcConnPool* pool, struct IrcConn* conn)
 {
     __lock(pool);
 
@@ -66,7 +66,7 @@ void ircconnpool_push(struct IrcConnPool* pool, struct IrcConn* conn)
     __unlock(pool);
 }
 
-bool ircconnpool_remove(struct IrcConnPool* pool, struct IrcConn* conn)
+bool ircconnpool_remove(IrcConnPool* pool, struct IrcConn* conn)
 {
     int i;
 
@@ -96,12 +96,12 @@ destroy:
     return true;
 }
 
-int ircconnpool_len(struct IrcConnPool* pool)
+int ircconnpool_len(IrcConnPool* pool)
 {
     return pool->len;
 }
 
-void* ircconnpool_walk(struct IrcConnPool* pool, char (fn)(struct IrcConn*, void*), void* arg)
+void* ircconnpool_walk(IrcConnPool* pool, char (fn)(struct IrcConn*, void*), void* arg)
 {
     int  i;
     char r;

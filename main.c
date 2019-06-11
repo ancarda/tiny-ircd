@@ -9,13 +9,16 @@
 #include "ircconn.h"
 #include "ircconnpool.h"
 #include "irc.h"
+#include "chan.h"
+#include "chanpool.h"
 
 #define LISTEN_BACKLOG 10
 
 struct Context
 {
-    struct IrcConnPool* pool;
-    int                 peer;
+    IrcConnPool* pool;
+    ChanPool*    cp;
+    int          peer;
 };
 
 void *handle_client(void* arg)
@@ -41,7 +44,7 @@ void *handle_client(void* arg)
             goto cleanup;
         }
 
-        handle_irc_packet(irc, ctx->pool, buf);
+        handle_irc_packet(irc, ctx->pool, ctx->cp, buf);
     }
 
 cleanup:
@@ -64,10 +67,12 @@ int main(int argc, char* argv[])
     int                 peer;
     struct sockaddr     peer_addr;
     socklen_t           peer_addr_sizeof;
-    struct IrcConnPool* pool;
+    IrcConnPool*        pool;
     struct Context*     ctx;
+    ChanPool*           cp;
 
     pool = ircconnpool_make(10);
+    cp = chanpool_make();
     threads_len = 0;
     threads_cap = 100;
     threads = malloc(threads_cap * sizeof(pthread_t));
@@ -98,8 +103,9 @@ int main(int argc, char* argv[])
         }
 
         ctx = malloc(sizeof(*ctx));
-        ctx->peer = peer;
         ctx->pool = pool;
+        ctx->cp   = cp;
+        ctx->peer = peer;
 
         pthread_create(&threads[threads_len], NULL, handle_client, ctx);
         threads_len++;

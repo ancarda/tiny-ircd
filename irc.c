@@ -134,7 +134,7 @@ char walk_cond_notice(struct IrcConn* irc, void* arg)
     return IRCCONNPOOL_WALK_NEXT_ITEM;
 }
 
-void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
+void handle_nick(struct IrcConn* irc, IrcConnPool* pool)
 {
     char* nick;
     char  was_null;
@@ -182,7 +182,17 @@ void handle_nick(struct IrcConn* irc, struct IrcConnPool* pool)
     }
 }
 
-void handle_irc_packet(struct IrcConn* irc, struct IrcConnPool* pool, char* line)
+void handle_join(struct IrcConn* irc, ChanPool* cp, char* chan_name)
+{
+    // TODO(ancarda): chanpool_walk to find the requested channel.
+    // If it does not exist, create it and push it into the ChanPool.
+    // Finally, register the user bidirectionally:
+    //
+    //     ircconn_push(chan);
+    //     chan_push(irc);
+}
+
+void handle_irc_packet(struct IrcConn* irc, IrcConnPool* pool, ChanPool* cp, char* line)
 {
     char* cmd;
 
