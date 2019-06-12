@@ -1,3 +1,5 @@
+#pragma once
+
 #include <pthread.h>
 #include "tinyirc.h"
 #include "chan.h"
