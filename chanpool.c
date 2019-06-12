@@ -13,7 +13,6 @@ struct ChanPool
     ChanPoolEntry* p_head; /*@NULL@*/
     ChanPoolEntry* p_tail; /*@NULL@*/
     int            len;
-    int            cap;
 };
 
 ChanPoolEntry* chanpoolentry_make(Chan* chan)
@@ -38,7 +37,6 @@ ChanPool* chanpool_make()
     cp->p_head = NULL;
     cp->p_tail = NULL;
     cp->len    = 0;
-    cp->cap    = 10;
 
     return cp;
 }
